@@ -269,7 +269,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -4.9355, y: 1.26, z: 0.16}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7490772492611213922}
@@ -295,6 +295,13 @@ MonoBehaviour:
   m_OtherPortalTransform: {fileID: 5584215304496321327}
   m_MirrorPortal: {fileID: 0}
   m_CameraOffset: 0.5
+  m_ValidPositions:
+  - {fileID: 5746302519426763949}
+  - {fileID: 4332604916578683450}
+  - {fileID: 5519105493268039622}
+  - {fileID: 1658442255294252384}
+  m_RaycastValidationOffsetDistance: 0
+  m_MaxAngleValidation: 5
 --- !u!1 &4238864328761912214
 GameObject:
   m_ObjectHideFlags: 0
