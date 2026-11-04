@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Portal : MonoBehaviour
 {
-   // public FPSController m_Player;
+    public FPSController m_Player;
     public Camera m_Camera;
     public Transform m_OtherPortalTransform;
     public Portal m_MirrorPortal;
@@ -25,7 +25,7 @@ public class Portal : MonoBehaviour
         float l_Distance = Vector3.Distance(m_Camera.transform.position, transform.position);
         m_Camera.nearClipPlane = m_CameraOffset;
     }
-   /* public bool IsValidPosition(Vector3 Position, Vector3 Normal)
+    public bool IsValidPosition(Vector3 Position, Vector3 Normal)
     {
         Camera l_Camera = Camera.main;
         transform.position = Position;
@@ -66,20 +66,6 @@ public class Portal : MonoBehaviour
             }
         }
         return true;
-    }*/
+    }
 }
-/*
-public Portal m_Blue;
-public Portal m_Orange;
 
-void Shoot(Portal _Portal)
-dentro de if raycast
-    if(_Portal.IsValidPosition(l_RayCastHit.ppoint, l_RayCastHit.normal))
-{
-    _Portal.gameObject.SetActive(true);
-}
-else
-{
-_Portal.gameObject.SetActive(false);
-}
- */

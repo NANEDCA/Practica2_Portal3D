@@ -1,8 +1,9 @@
-using UnityEngine;
+using NUnit.Framework;
 using System;
 using System.Collections;
-using NUnit.Framework;
 using System.Collections.Generic;
+using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class FPSController : MonoBehaviour
 {
@@ -40,7 +41,9 @@ public class FPSController : MonoBehaviour
     public float m_MaxShootDistance = 200.0f;
     public LayerMask m_ShootLayerMask;
     public float m_RecoilTime = 0.5f;
-    private float m_NextFireTime = 0f; 
+    private float m_NextFireTime = 0f;
+    public Portal m_Blue;
+    public Portal m_Orange;
 
     [Header("Ammo")]
     public int m_MagazineSize = 30;
@@ -82,7 +85,7 @@ public class FPSController : MonoBehaviour
         m_Yaw = transform.rotation.eulerAngles.y;
         m_Pitch = m_PitchController.eulerAngles.x;
         Cursor.lockState = CursorLockMode.Locked;
-        SetIdleWeaponAnimation();
+        //SetIdleWeaponAnimation();
         GameController.GetGameController().SetPlayer(this);
     }
     private void Update()
@@ -141,7 +144,7 @@ public class FPSController : MonoBehaviour
 
         if (CanShoot() && MustShoot())
         {
-            Shoot();
+           Shoot(m_Orange);
         }
         if (CanReload() && MustReload())
         {
@@ -164,6 +167,9 @@ public class FPSController : MonoBehaviour
     {
         return Input.GetMouseButtonDown(m_ShootButton);
     }
+
+
+    /*
     void Shoot()
     {
         m_CurrentAmmo--;
@@ -177,9 +183,27 @@ public class FPSController : MonoBehaviour
         {
             
         }
+    } 
+    */
+
+
+    void Shoot(Portal _Portal) {
+        Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+
+        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, m_ShootLayerMask.value)) { }
+      /*
+        if (_Portal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal)) 
+        {
+            _Portal.gameObject.SetActive(true);
+        }
+         else
+        {
+            _Portal.gameObject.SetActive(false);
+        } 
+      */
     }
 
-    void SetIdleWeaponAnimation()
+void SetIdleWeaponAnimation()
     {
         m_Animation.CrossFade(m_IdleAnimationClip.name, 0.1f);
     }
