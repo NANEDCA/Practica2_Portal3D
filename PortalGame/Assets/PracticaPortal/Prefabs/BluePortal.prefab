@@ -252,9 +252,10 @@ GameObject:
   m_Component:
   - component: {fileID: 796533868038952076}
   - component: {fileID: 2908987097060299293}
+  - component: {fileID: 8897330318461928792}
   m_Layer: 0
   m_Name: BluePortal
-  m_TagString: Untagged
+  m_TagString: portal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -269,7 +270,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -4.9355, y: 1.26, z: 0.16}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 2, y: 2, z: 0.2667851}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7490772492611213922}
@@ -291,6 +292,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e34e1b2c389dd2d408649f25e37a258f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Portal
+  m_Player: {fileID: 0}
   m_Camera: {fileID: 695864411091479220}
   m_OtherPortalTransform: {fileID: 5584215304496321327}
   m_MirrorPortal: {fileID: 0}
@@ -302,6 +304,27 @@ MonoBehaviour:
   - {fileID: 1658442255294252384}
   m_RaycastValidationOffsetDistance: 0
   m_MaxAngleValidation: 5
+--- !u!65 &8897330318461928792
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3767576647739693868}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0.7}
 --- !u!1 &4238864328761912214
 GameObject:
   m_ObjectHideFlags: 0
