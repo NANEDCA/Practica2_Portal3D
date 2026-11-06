@@ -10,6 +10,7 @@ public class FPSController : MonoBehaviour
     bool m_AngleLocked = false;
     public Transform m_PitchController;
 
+    Rigidbody m_GrabObjectt;
     float m_Yaw;
     float m_Pitch;
     public float m_YawSpeed;
@@ -19,7 +20,15 @@ public class FPSController : MonoBehaviour
     public float m_MinPitch;
     public float m_MaxPitch;
     public float m_Speed;
+
+
+   public bool  attachingObject=false;
+   public bool objecAttached=false;
+    float GrabTIme;
+
+
     CharacterController m_CharacterController;
+    public float m_teleportportalOffset = 0.2f;
 
     float m_VerticalSpeed = 0.0f;
     public float m_JumpSpeed = 0.0f;
@@ -29,8 +38,15 @@ public class FPSController : MonoBehaviour
     Quaternion m_StartRotation;
 
     [Header("Health")]
+    
     public float m_MaxHealth = 100.0f;
     public float m_CurrentHealth = 100.0f;
+    [Header("Portals")]
+    Vector3 m_direction;
+    public float m_naxvalidangle = 40f;  
+    public float teleportPortalOffset=1.0f;  
+
+    
 
     [Header("Shield")]
     public float m_MaxShield = 100.0f;
@@ -62,7 +78,13 @@ public class FPSController : MonoBehaviour
     public KeyCode m_SprintKeyCode = KeyCode.LeftShift;
     public KeyCode m_DebugLockAngleKeyCode = KeyCode.I;
     public KeyCode m_DebugLockCursorKeyCode = KeyCode.O;
+    public KeyCode m_GrabObject = KeyCode.E;
     public int m_ShootButton = 0;
+    
+    [Header("Grab")]
+    public Transform m_GrabTransform;
+    public float TimeToGrab=0.8f;
+    public float msjootAttacjedObjectforce = 20.0f;
 
     [Header("Animation")]
     public Animation m_Animation;
@@ -111,7 +133,7 @@ public class FPSController : MonoBehaviour
         transform.rotation = Quaternion.Euler(0.0f, m_Yaw, 0.0f);
         m_PitchController.localRotation = Quaternion.Euler(m_Pitch, 0.0f, 0.0f);
 
-        Vector3 l_Direction = Vector3.zero;
+        m_direction  = Vector3.zero;
         Vector3 l_Right = transform.right;
         Vector3 l_Forward = transform.forward;
         l_Right.y = 0.0f;
@@ -119,10 +141,10 @@ public class FPSController : MonoBehaviour
         l_Right.Normalize();
         l_Forward.Normalize();
 
-        if (Input.GetKey(m_LeftKeyCode)) l_Direction = -transform.right;
-        else if (Input.GetKey(m_RightKeyCode)) l_Direction = transform.right;
-        if (Input.GetKey(m_UpKeyCode)) l_Direction += transform.forward;
-        if (Input.GetKey(m_DownKeyCode)) l_Direction -= transform.forward;
+        if (Input.GetKey(m_LeftKeyCode)) m_direction = -transform.right;
+        else if (Input.GetKey(m_RightKeyCode)) m_direction = transform.right;
+        if (Input.GetKey(m_UpKeyCode)) m_direction+= transform.forward;
+        if (Input.GetKey(m_DownKeyCode))m_direction-= transform.forward;
 
         float l_Speed = m_Speed;
         if (Input.GetKey(m_SprintKeyCode)) l_Speed = m_SprintSpeed;
@@ -133,13 +155,12 @@ public class FPSController : MonoBehaviour
             if (m_VerticalSpeed < 0.0f) m_VerticalSpeed = -2.0f;
             if (Input.GetKeyDown(m_JumpKeyCode)) m_VerticalSpeed = m_JumpSpeed;
         }
-        else m_VerticalSpeed += Physics.gravity.y * Time.deltaTime;
+        else m_VerticalSpeed += Physics.gravity.y * Time.deltaTime; 
+        m_direction.Normalize(); 
 
-        l_Direction.Normalize();
-        l_Direction = l_Direction * l_Speed * Time.deltaTime;
-        l_Direction.y = m_VerticalSpeed * Time.deltaTime;
-
-        CollisionFlags l_CollisionFlags = m_CharacterController.Move(l_Direction);
+        Vector3 ldirection = m_direction * l_Speed * Time.deltaTime;
+        ldirection.y = m_VerticalSpeed * Time.deltaTime; 
+        CollisionFlags l_CollisionFlags = m_CharacterController.Move(ldirection);
 
 
         if (CanShoot() && MustShoot())
@@ -149,8 +170,101 @@ public class FPSController : MonoBehaviour
         if (CanReload() && MustReload())
         {
 
+        } 
+
+        if (CanGrabObject()) 
+        {
+           GrabObject();
+        } 
+        UpdateAttachedObject(); 
+        UpdateAttachingObject();
+
+
+
+    } 
+    bool CanGrabObject()
+    {
+      if (Input.GetKeyDown(m_GrabObject) && !attachingObject && !objecAttached)
+        {
+            return true;
+        } 
+      return false;
+
+    } 
+    void GrabObject()
+    {
+        Ray lray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f)); 
+        if (Physics.Raycast(lray,out RaycastHit lraycastHit, m_MaxShootDistance, m_ShootLayerMask.value))
+        {
+            if (lraycastHit.collider.CompareTag("Cube"))
+            {
+               // GrabObject(lraycastHit.collider);
+            }
         }
     }
+    void GrabObject(Collider _Collider)
+    {  
+        
+       m_GrabObjectt =_Collider.GetComponent<Rigidbody>();  
+        m_GrabObjectt.isKinematic=true; 
+        attachingObject = true;
+        m_GrabObjectt.transform.SetParent(m_GrabTransform);
+        GrabTIme = Time.time;
+
+    }
+    void UpdateAttachingObject() { 
+    
+        if (attachingObject)
+        {
+            float ldifftime = Time.time - GrabTIme;
+            float lpct = MathF.Min(1.0f,ldifftime/GrabTIme);
+            m_GrabObjectt.transform.position =Vector3.Lerp(m_GrabObjectt.transform.position, m_GrabTransform.position, lpct);
+            m_GrabObjectt.transform.rotation = Quaternion.Lerp(m_GrabObjectt.transform.rotation, m_GrabTransform.rotation, lpct); 
+
+            if (lpct==1.0f)
+            {
+
+                attachingObject = true; 
+                objecAttached = true;
+
+            }
+        }
+    
+    } 
+
+    void UpdateAttachedObject()
+    { 
+
+       if (objecAttached)  
+        {  
+            if (Input.GetKeyUp(m_GrabObject)) 
+            {
+                ThrowAttachedObkect(0.0f);
+            }
+            else if (Input.GetMouseButtonDown(m_ShootButton))
+            {
+                //ThrowAttachedObkect(m_ShootButtonobjectforce); 
+
+            }
+            
+
+                
+        }
+
+
+    }
+
+    void ThrowAttachedObkect(float force)
+    {   /*
+        m_GrabObject.isKinematic = false; 
+        m_GrabObject.linearVelocity=m_PitchController.forward*force; 
+        m_GrabObject
+        */
+
+    }
+
+
+
     bool CanReload()
     {
         return !m_IsReloading && m_CurrentAmmo < m_MagazineSize && m_ReserveAmmo > 0;
@@ -227,7 +341,17 @@ void SetIdleWeaponAnimation()
         else if (other.CompareTag("DeadZone"))
         {
             Kill();
-        }
+        } 
+        if (other.CompareTag("Portal"))
+        {
+            Portal portal= other.GetComponent<Portal>();
+              
+            if (CanTeleport(portal))
+            {
+                Teleport(portal);
+            }
+        } 
+       
     }
     void Kill()
     {
@@ -236,6 +360,30 @@ void SetIdleWeaponAnimation()
             GameController.GetGameController().GetFade().gameObject.SetActive(false);
             GameController.GetGameController().Restart();
         }));*/
+    } 
+    public void Teleport(Portal portal)
+    {
+        Vector3 Worldlposition = transform.position + m_direction * m_teleportportalOffset;  
+        Vector3 lWorldForward=transform.forward;
+        Vector3 localPosition=portal.m_OtherPortalTransform.InverseTransformPoint(Worldlposition); 
+        Vector3 localForward= portal.m_OtherPortalTransform.InverseTransformDirection(lWorldForward);
+       
+
+        m_CharacterController.enabled = false; 
+        transform.position=portal.m_MirrorPortal.transform.TransformPoint(localPosition);
+        transform.forward = portal.m_MirrorPortal.transform.TransformDirection(localForward); 
+        m_Yaw= transform.eulerAngles.y;
+        m_direction = Vector3.zero;
+        m_CharacterController.enabled = true;  
+
+
+    }  
+    private bool CanTeleport(Portal portal)
+    {
+        float lmaxDotangle = Mathf.Cos(m_naxvalidangle*Mathf.Deg2Rad);
+        float ldotAngle = Vector3.Dot(-m_direction, portal.transform.forward); 
+        return ldotAngle >= lmaxDotangle;
+
     }
     public void Restart()
     {
