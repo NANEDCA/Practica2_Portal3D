@@ -6,11 +6,12 @@ TagManager:
   tags:
   - PortalEnabled
   - Portal
+  - Cube
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - portal allowed
   - Water
   - UI
   - 

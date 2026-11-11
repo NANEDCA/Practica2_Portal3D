@@ -20,7 +20,7 @@ public class FPSController : MonoBehaviour
     public float m_MinPitch;
     public float m_MaxPitch;
     public float m_Speed;
-
+    public float m_ShootButtonobjectforce = 20.0f;
 
    public bool  attachingObject=false;
    public bool objecAttached=false;
@@ -79,8 +79,9 @@ public class FPSController : MonoBehaviour
     public KeyCode m_DebugLockAngleKeyCode = KeyCode.I;
     public KeyCode m_DebugLockCursorKeyCode = KeyCode.O;
     public KeyCode m_GrabObject = KeyCode.E;
-    public int m_ShootButton = 0;
-    
+    public int mouse_ShootButton0 = 0;
+    public int mouse_ShootButton1 = 1;
+
     [Header("Grab")]
     public Transform m_GrabTransform;
     public float TimeToGrab=0.8f;
@@ -165,7 +166,11 @@ public class FPSController : MonoBehaviour
 
         if (CanShoot() && MustShoot())
         {
-           Shoot(m_Orange);
+            if (Input.GetMouseButtonDown(mouse_ShootButton0))
+                Shoot(m_Orange);
+
+            if (Input.GetMouseButtonDown(mouse_ShootButton1))
+                Shoot(m_Blue);
         }
         if (CanReload() && MustReload())
         {
@@ -225,7 +230,7 @@ public class FPSController : MonoBehaviour
             {
 
                 attachingObject = true; 
-                objecAttached = true;
+                objecAttached = false;
 
             }
         }
@@ -241,9 +246,9 @@ public class FPSController : MonoBehaviour
             {
                 ThrowAttachedObkect(0.0f);
             }
-            else if (Input.GetMouseButtonDown(m_ShootButton))
+            else if (Input.GetMouseButtonDown(mouse_ShootButton0))
             {
-                //ThrowAttachedObkect(m_ShootButtonobjectforce); 
+                ThrowAttachedObkect(m_ShootButtonobjectforce); 
 
             }
             
@@ -255,11 +260,12 @@ public class FPSController : MonoBehaviour
     }
 
     void ThrowAttachedObkect(float force)
-    {   /*
-        m_GrabObject.isKinematic = false; 
-        m_GrabObject.linearVelocity=m_PitchController.forward*force; 
-        m_GrabObject
-        */
+    {   
+        m_GrabObjectt.isKinematic = false; 
+        m_GrabObjectt.linearVelocity=m_PitchController.forward*force; 
+        m_GrabObjectt.transform.SetParent(null); 
+        objecAttached=false;
+        
 
     }
 
@@ -279,7 +285,7 @@ public class FPSController : MonoBehaviour
     }
     bool MustShoot()
     {
-        return Input.GetMouseButtonDown(m_ShootButton);
+        return Input.GetMouseButtonDown(mouse_ShootButton0)|| Input.GetMouseButtonDown(mouse_ShootButton1);
     }
 
 
@@ -304,17 +310,20 @@ public class FPSController : MonoBehaviour
     void Shoot(Portal _Portal) {
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
-        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, m_ShootLayerMask.value)) { }
-      /*
-        if (_Portal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal)) 
+        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, m_ShootLayerMask.value))
         {
-            _Portal.gameObject.SetActive(true);
+            if (_Portal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal))
+            {
+                _Portal.transform.position =
+               l_RayCastHit.point + l_RayCastHit.normal * 0.01f;
+
+                _Portal.transform.rotation =
+                    Quaternion.LookRotation(l_RayCastHit.normal);
+
+                _Portal.gameObject.SetActive(true);
+            }
         }
-         else
-        {
-            _Portal.gameObject.SetActive(false);
-        } 
-      */
+      
     }
 
 void SetIdleWeaponAnimation()
@@ -333,15 +342,7 @@ void SetIdleWeaponAnimation()
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Item"))
-        {
-            //Item l_Item = other.GetComponent<Item>();
-            //if (l_Item.CanPick()) l_Item.Pick();
-        }
-        else if (other.CompareTag("DeadZone"))
-        {
-            Kill();
-        } 
+       
         if (other.CompareTag("Portal"))
         {
             Portal portal= other.GetComponent<Portal>();
@@ -367,7 +368,9 @@ void SetIdleWeaponAnimation()
         Vector3 lWorldForward=transform.forward;
         Vector3 localPosition=portal.m_OtherPortalTransform.InverseTransformPoint(Worldlposition); 
         Vector3 localForward= portal.m_OtherPortalTransform.InverseTransformDirection(lWorldForward);
-       
+
+        localPosition = Quaternion.Euler(0f, 180f, 0f) * localPosition;
+        localForward = Quaternion.Euler(0f, 180f, 0f) * localForward;
 
         m_CharacterController.enabled = false; 
         transform.position=portal.m_MirrorPortal.transform.TransformPoint(localPosition);
