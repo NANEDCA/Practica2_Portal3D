@@ -19,7 +19,19 @@ public class FPSController : MonoBehaviour
     public float m_MinPitch;
     public float m_MaxPitch;
     public float m_Speed;
+<<<<<<< Updated upstream
     CharacterController m_CharacterController;
+=======
+    public float m_ShootAttachedObjectForce = 20.0f;
+
+    public bool  attachingObject=false;
+   public bool objecAttached=false;
+    float GrabTIme;
+
+
+    CharacterController m_CharacterController;
+    public float m_teleportportalOffset = 0.01f;
+>>>>>>> Stashed changes
 
     float m_VerticalSpeed = 0.0f;
     public float m_JumpSpeed = 0.0f;
@@ -62,7 +74,19 @@ public class FPSController : MonoBehaviour
     public KeyCode m_SprintKeyCode = KeyCode.LeftShift;
     public KeyCode m_DebugLockAngleKeyCode = KeyCode.I;
     public KeyCode m_DebugLockCursorKeyCode = KeyCode.O;
+<<<<<<< Updated upstream
     public int m_ShootButton = 0;
+=======
+    public KeyCode m_GrabObject = KeyCode.E;
+    public int mouse_ShootButton0 = 0;
+    public int mouse_ShootButton1 = 1;
+
+    [Header("Grab")]
+    
+    public Transform m_GrabTransform;
+    public float TimeToGrab=0.8f;
+    public float msjootAttacjedObjectforce = 20.0f;
+>>>>>>> Stashed changes
 
     [Header("Animation")]
     public Animation m_Animation;
@@ -143,14 +167,114 @@ public class FPSController : MonoBehaviour
 
 
         if (CanShoot() && MustShoot())
-        {
-           Shoot(m_Orange);
-        }
-        if (CanReload() && MustReload())
-        {
+        {  
+           if (Input.GetMouseButtonDown(mouse_ShootButton0)) Shoot(m_Orange);
+           if(Input.GetMouseButtonDown(mouse_ShootButton1)) Shoot(m_Blue);
 
+<<<<<<< Updated upstream
         }
     }
+=======
+        }
+       
+
+        if (CanGrabObject()) 
+        {
+           GrabObject();
+        } 
+       
+        UpdateAttachedObject(); 
+        UpdateAttachingObject();
+
+
+    }  
+
+
+
+    bool CanGrabObject()
+    {
+      if (Input.GetKeyDown(m_GrabObject) && !attachingObject && !objecAttached)
+        {
+           Shoot(m_Orange);
+            return true;
+        } 
+      return false;
+
+    }  
+
+
+    void GrabObject()
+    {
+        Ray lray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f)); 
+        if (Physics.Raycast(lray,out RaycastHit lraycastHit, m_MaxShootDistance, m_ShootLayerMask.value))
+        {
+            if (lraycastHit.collider.CompareTag("Cube"))
+            {
+                GrabObject(lraycastHit.collider);
+            }
+        }
+        if (CanReload() && MustReload())
+    }
+    void UpdateAttachingObject()
+    {
+
+        if (attachingObject)
+        {
+            float ldifftime = Time.time - GrabTIme;
+            float lpct = Mathf.Clamp01(ldifftime / TimeToGrab);
+            m_GrabObjectt.transform.position = Vector3.Lerp(m_GrabObjectt.transform.position, m_GrabTransform.position, lpct);
+            m_GrabObjectt.transform.rotation = Quaternion.Lerp(m_GrabObjectt.transform.rotation, m_GrabTransform.rotation, lpct);
+
+            if (lpct == 1.0f)
+            {
+
+                attachingObject = false;
+                objecAttached = true;
+
+            }
+        }
+
+    }
+    void UpdateAttachedObject()
+    {
+
+        if (objecAttached)
+        {
+            if (Input.GetKeyUp(m_GrabObject))
+            {
+                ThrowAttachedObkect(0.0f);
+            }
+            else if (Input.GetMouseButtonDown(mouse_ShootButton0))
+            {
+                ThrowAttachedObkect(m_ShootAttachedObjectForce);
+
+            }
+
+        }
+
+    }
+
+    void GrabObject(Collider _Collider)
+    {
+
+        m_GrabObjectt = _Collider.GetComponent<Rigidbody>();
+        m_GrabObjectt.isKinematic = true;
+        attachingObject = true;
+        m_GrabObjectt.transform.SetParent(m_GrabTransform);
+        GrabTIme = Time.time;
+
+    }  
+
+    void ThrowAttachedObkect(float force)
+    {
+        m_GrabObjectt.isKinematic = false;
+        m_GrabObjectt.linearVelocity =m_PitchController.forward*force;
+        m_GrabObjectt.transform.SetParent(null);
+        objecAttached = false;
+
+    }
+
+>>>>>>> Stashed changes
     bool CanReload()
     {
         return !m_IsReloading && m_CurrentAmmo < m_MagazineSize && m_ReserveAmmo > 0;
@@ -166,6 +290,7 @@ public class FPSController : MonoBehaviour
     bool MustShoot()
     {
         return Input.GetMouseButtonDown(m_ShootButton);
+        return Input.GetMouseButtonDown(mouse_ShootButton0) || Input.GetMouseButtonDown(mouse_ShootButton1);
     }
 
 
@@ -177,6 +302,7 @@ public class FPSController : MonoBehaviour
 
         m_NextFireTime = Time.time + m_RecoilTime;
 
+    void Shoot(Portal _Portal) {
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
         if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, m_ShootLayerMask.value))
@@ -185,6 +311,11 @@ public class FPSController : MonoBehaviour
         }
     } 
     */
+        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, m_ShootLayerMask.value)) {
+          
+            if (_Portal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal))
+            {
+                _Portal.transform.position = l_RayCastHit.point + l_RayCastHit.normal*0.001f;
 
 
     void Shoot(Portal _Portal) {
@@ -195,12 +326,17 @@ public class FPSController : MonoBehaviour
         if (_Portal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal)) 
         {
             _Portal.gameObject.SetActive(true);
+                _Portal.transform.rotation = Quaternion.LookRotation(l_RayCastHit.normal);
+                _Portal.gameObject.SetActive(true);
+            }
+            
         }
          else
         {
             _Portal.gameObject.SetActive(false);
         } 
       */
+        
     }
 
 void SetIdleWeaponAnimation()
@@ -219,6 +355,7 @@ void SetIdleWeaponAnimation()
     }
     private void OnTriggerEnter(Collider other)
     {
+<<<<<<< Updated upstream
         if (other.CompareTag("Item"))
         {
             //Item l_Item = other.GetComponent<Item>();
@@ -228,6 +365,19 @@ void SetIdleWeaponAnimation()
         {
             Kill();
         }
+=======
+       
+        if (other.CompareTag("Portal"))
+        {
+            Portal portal= other.GetComponent<Portal>();
+              
+            if (CanTeleport(portal))
+            {
+                Teleport(portal);
+            }
+        } 
+       
+>>>>>>> Stashed changes
     }
     void Kill()
     {
@@ -236,6 +386,35 @@ void SetIdleWeaponAnimation()
             GameController.GetGameController().GetFade().gameObject.SetActive(false);
             GameController.GetGameController().Restart();
         }));*/
+<<<<<<< Updated upstream
+=======
+    } 
+    public void Teleport(Portal portal)
+    {
+        Vector3 Worldlposition = transform.position + m_direction * m_teleportportalOffset;  
+        Vector3 lWorldForward=transform.forward;
+        Vector3 localPosition=portal.m_OtherPortalTransform.InverseTransformPoint(Worldlposition); 
+        Vector3 localForward= portal.m_OtherPortalTransform.InverseTransformDirection(lWorldForward);
+       
+        localPosition = Quaternion.Euler(0f, 180f, 0f) * localPosition;
+        localForward = Quaternion.Euler(0f, 180f, 0f) * localForward;
+
+        m_CharacterController.enabled = false; 
+        transform.position=portal.m_MirrorPortal.transform.TransformPoint(localPosition);
+        transform.forward = portal.m_MirrorPortal.transform.TransformDirection(localForward); 
+        m_Yaw= transform.eulerAngles.y;
+        m_direction = Vector3.zero;
+        m_CharacterController.enabled = true;  
+
+
+    }  
+    private bool CanTeleport(Portal portal)
+    {
+        float lmaxDotangle = Mathf.Cos(m_naxvalidangle*Mathf.Deg2Rad);
+        float ldotAngle = Vector3.Dot(-m_direction, portal.transform.forward); 
+        return ldotAngle >= lmaxDotangle;
+
+>>>>>>> Stashed changes
     }
     public void Restart()
     {
