@@ -41,7 +41,14 @@ public class FPSController : MonoBehaviour
     
     public float m_MaxHealth = 100.0f;
     public float m_CurrentHealth = 100.0f;
+   
     [Header("Portals")]
+    public Portal m_PreviewOrange;
+    public Portal m_PreviewBlue;
+    public List<Renderer> m_PreviewBluePOrtal= new List<Renderer>(); 
+    public List<Renderer> m_PreviewOrangePOrtal= new List<Renderer>(); 
+    public Color IsValidColor= new Color(0, 1, 0, 0.35f);
+    public Color NoIsValidColor = new Color(1, 0, 0, 0.35f);
     Vector3 m_direction;
     public float m_naxvalidangle = 40f;  
     public float teleportPortalOffset=1.0f;  
@@ -55,7 +62,9 @@ public class FPSController : MonoBehaviour
     [Header("Shoot")]
     public Camera m_Camera;
     public float m_MaxShootDistance = 200.0f;
-    public LayerMask m_ShootLayerMask;
+    
+    public LayerMask m_grabLayermask;
+    public LayerMask PortalLayerMask;
     public float m_RecoilTime = 0.5f;
     private float m_NextFireTime = 0f;
     public Portal m_Blue;
@@ -84,7 +93,7 @@ public class FPSController : MonoBehaviour
 
     [Header("Grab")]
     public Transform m_GrabTransform;
-    public float TimeToGrab=0.8f;
+    public float TimeToGrab=0.01f;
     public float msjootAttacjedObjectforce = 20.0f;
 
     [Header("Animation")]
@@ -163,18 +172,25 @@ public class FPSController : MonoBehaviour
         ldirection.y = m_VerticalSpeed * Time.deltaTime; 
         CollisionFlags l_CollisionFlags = m_CharacterController.Move(ldirection);
 
-
-        if (CanShoot() && MustShoot())
+        if (Input.GetMouseButton(mouse_ShootButton0))
         {
-            if (Input.GetMouseButtonDown(mouse_ShootButton0))
-                Shoot(m_Orange);
-
-            if (Input.GetMouseButtonDown(mouse_ShootButton1))
-                Shoot(m_Blue);
+            PreviewPortal(m_PreviewOrange, m_PreviewOrangePOrtal);
+           // ShowPreview(m_PreviewOrangePOrtal);
+            
         }
-        if (CanReload() && MustReload())
+        if (Input.GetMouseButton(mouse_ShootButton1))
         {
+            PreviewPortal(m_PreviewBlue, m_PreviewBluePOrtal);
+           // ShowPreview(m_PreviewBluePOrtal);
+        }
 
+        if (CanShoot() && Input.GetMouseButtonDown(mouse_ShootButton0))
+        {
+            Shoot(m_Orange);
+        }
+        if (CanReload() && Input.GetMouseButtonDown(mouse_ShootButton1))
+        {
+            Shoot(m_Blue);
         } 
 
         if (CanGrabObject()) 
@@ -199,11 +215,11 @@ public class FPSController : MonoBehaviour
     void GrabObject()
     {
         Ray lray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f)); 
-        if (Physics.Raycast(lray,out RaycastHit lraycastHit, m_MaxShootDistance, m_ShootLayerMask.value))
+        if (Physics.Raycast(lray,out RaycastHit lraycastHit, m_MaxShootDistance, m_grabLayermask))
         {
             if (lraycastHit.collider.CompareTag("Cube"))
             {
-               // GrabObject(lraycastHit.collider);
+                GrabObject(lraycastHit.collider);
             }
         }
     }
@@ -222,15 +238,16 @@ public class FPSController : MonoBehaviour
         if (attachingObject)
         {
             float ldifftime = Time.time - GrabTIme;
-            float lpct = MathF.Min(1.0f,ldifftime/GrabTIme);
+            float lpct = Mathf.Clamp01(ldifftime/GrabTIme);
             m_GrabObjectt.transform.position =Vector3.Lerp(m_GrabObjectt.transform.position, m_GrabTransform.position, lpct);
             m_GrabObjectt.transform.rotation = Quaternion.Lerp(m_GrabObjectt.transform.rotation, m_GrabTransform.rotation, lpct); 
 
             if (lpct==1.0f)
             {
 
-                attachingObject = true; 
-                objecAttached = false;
+                attachingObject = false; 
+                objecAttached = true;
+                Debug.Log("OBJECTE PREPARAT PER LLENÇAR!");
 
             }
         }
@@ -265,8 +282,6 @@ public class FPSController : MonoBehaviour
         m_GrabObjectt.linearVelocity=m_PitchController.forward*force; 
         m_GrabObjectt.transform.SetParent(null); 
         objecAttached=false;
-        
-
     }
 
 
@@ -306,11 +321,47 @@ public class FPSController : MonoBehaviour
     } 
     */
 
+    void PreviewPortal(Portal portal, List<Renderer> portalsRenders )
+    { 
+        bool isvalid=false; 
+        Color color = NoIsValidColor;
+        Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, PortalLayerMask))
+        {
+            isvalid = portal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal);
 
+
+            portal.transform.position =
+            l_RayCastHit.point + l_RayCastHit.normal * 0.01f;
+
+            portal.transform.rotation =
+                Quaternion.LookRotation(l_RayCastHit.normal);
+        }
+        color = NoIsValidColor;
+
+        portal.gameObject.SetActive(true);
+        if (isvalid) {
+            color = IsValidColor;
+        } 
+       
+        foreach (Renderer r in portalsRenders) { 
+          r.material.color = color;
+        }
+    }
+    void ShowPreview(List<Renderer> portalsRenders)
+    {
+        foreach (Renderer r in portalsRenders)
+        {
+            if (r != null)
+            {
+                r.gameObject.SetActive(true);
+            }
+        }
+    }
     void Shoot(Portal _Portal) {
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
-        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, m_ShootLayerMask.value))
+        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, PortalLayerMask))
         {
             if (_Portal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal))
             {
