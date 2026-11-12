@@ -37,7 +37,7 @@ public class Portal : MonoBehaviour
             float l_Distance = l_Direction.magnitude + m_RaycastValidationOffsetDistance;
             l_Direction.Normalize();
             Ray l_Ray = new Ray(l_Camera.transform.position, l_Direction);
-            if (Physics.Raycast(l_Ray, out RaycastHit l_HitInfo, l_Distance, m_Player.m_ShootLayerMask.value, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(l_Ray, out RaycastHit l_HitInfo, l_Distance, m_Player.m_PortalLayerMask.value, QueryTriggerInteraction.Ignore))
             {
                 if (l_HitInfo.collider.CompareTag("PortalEnabled"))
                 {

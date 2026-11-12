@@ -4,7 +4,7 @@ public class CompanionCube : MonoBehaviour
 {
     public float m_maxValidAngle = 40f; 
     Rigidbody rb;
-    float m_teleportportalOffset = 1.0f;
+    public float m_teleportportalOffset = 1.0f;
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();

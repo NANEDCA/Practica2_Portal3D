@@ -55,7 +55,8 @@ public class FPSController : MonoBehaviour
     [Header("Shoot")]
     public Camera m_Camera;
     public float m_MaxShootDistance = 200.0f;
-    public LayerMask m_ShootLayerMask;
+    public LayerMask m_PortalLayerMask;
+    public LayerMask m_GrabLayerMask;
     public float m_RecoilTime = 0.5f;
     private float m_NextFireTime = 0f;
     public Portal m_Blue;
@@ -186,61 +187,62 @@ public class FPSController : MonoBehaviour
 
 
 
-    } 
+    }
+
     bool CanGrabObject()
     {
-      if (Input.GetKeyDown(m_GrabObject) && !attachingObject && !objecAttached)
-        {
-            return true;
-        } 
-      return false;
+        return Input.GetKeyDown(m_GrabObject) && !attachingObject && !objecAttached;
+    }
 
-    } 
     void GrabObject()
     {
-        Ray lray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f)); 
-        if (Physics.Raycast(lray,out RaycastHit lraycastHit, m_MaxShootDistance, m_ShootLayerMask.value))
+        Ray lray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+
+        if (Physics.Raycast(lray, out RaycastHit lraycastHit, m_MaxShootDistance, m_GrabLayerMask))
         {
             if (lraycastHit.collider.CompareTag("Cube"))
             {
-               // GrabObject(lraycastHit.collider);
+                GrabObject(lraycastHit.collider);
             }
         }
     }
+
     void GrabObject(Collider _Collider)
-    {  
-        
-       m_GrabObjectt =_Collider.GetComponent<Rigidbody>();  
-        m_GrabObjectt.isKinematic=true; 
+    {
+        m_GrabObjectt = _Collider.GetComponent<Rigidbody>();
+
+        if (m_GrabObjectt == null)
+            return;
+
+        m_GrabObjectt.isKinematic = true;
         attachingObject = true;
         m_GrabObjectt.transform.SetParent(m_GrabTransform);
-        GrabTIme = Time.time;
 
+        GrabTIme = Time.time;
     }
-    void UpdateAttachingObject() { 
-    
+
+    void UpdateAttachingObject()
+    {
         if (attachingObject)
         {
             float ldifftime = Time.time - GrabTIme;
-            float lpct = MathF.Min(1.0f,ldifftime/GrabTIme);
-            m_GrabObjectt.transform.position =Vector3.Lerp(m_GrabObjectt.transform.position, m_GrabTransform.position, lpct);
-            m_GrabObjectt.transform.rotation = Quaternion.Lerp(m_GrabObjectt.transform.rotation, m_GrabTransform.rotation, lpct); 
+            float lpct = Mathf.Min(1.0f, ldifftime / TimeToGrab);
 
-            if (lpct==1.0f)
+            m_GrabObjectt.transform.position = Vector3.Lerp(m_GrabObjectt.transform.position, m_GrabTransform.position, lpct);
+
+            m_GrabObjectt.transform.rotation = Quaternion.Lerp(m_GrabObjectt.transform.rotation, m_GrabTransform.rotation, lpct);
+
+            if (lpct >= 1.0f)
             {
-
-                attachingObject = true; 
-                objecAttached = false;
-
+                attachingObject = false;
+                objecAttached = true;
             }
         }
-    
-    } 
-
+    }
     void UpdateAttachedObject()
     { 
 
-       if (objecAttached)  
+        if (objecAttached)  
         {  
             if (Input.GetKeyUp(m_GrabObject)) 
             {
@@ -249,14 +251,8 @@ public class FPSController : MonoBehaviour
             else if (Input.GetMouseButtonDown(mouse_ShootButton0))
             {
                 ThrowAttachedObkect(m_ShootButtonobjectforce); 
-
-            }
-            
-
-                
+            }      
         }
-
-
     }
 
     void ThrowAttachedObkect(float force)
@@ -265,12 +261,7 @@ public class FPSController : MonoBehaviour
         m_GrabObjectt.linearVelocity=m_PitchController.forward*force; 
         m_GrabObjectt.transform.SetParent(null); 
         objecAttached=false;
-        
-
     }
-
-
-
     bool CanReload()
     {
         return !m_IsReloading && m_CurrentAmmo < m_MagazineSize && m_ReserveAmmo > 0;
@@ -310,15 +301,13 @@ public class FPSController : MonoBehaviour
     void Shoot(Portal _Portal) {
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
-        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, m_ShootLayerMask.value))
+        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, m_PortalLayerMask))
         {
             if (_Portal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal))
             {
-                _Portal.transform.position =
-               l_RayCastHit.point + l_RayCastHit.normal * 0.01f;
+                _Portal.transform.position = l_RayCastHit.point + l_RayCastHit.normal * 0.01f;
 
-                _Portal.transform.rotation =
-                    Quaternion.LookRotation(l_RayCastHit.normal);
+                _Portal.transform.rotation = Quaternion.LookRotation(l_RayCastHit.normal);
 
                 _Portal.gameObject.SetActive(true);
             }
