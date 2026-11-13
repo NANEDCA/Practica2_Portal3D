@@ -182,7 +182,6 @@ public class FPSController : MonoBehaviour
 
         if (Input.GetMouseButton(0))
         {
-            Debug.Log("BOT� PREMUT"); 
             m_PreviewOrange.gameObject.SetActive(true);
             PreviewPortal(m_PreviewOrange);
 
@@ -209,9 +208,6 @@ public class FPSController : MonoBehaviour
         } 
         UpdateAttachedObject(); 
         UpdateAttachingObject();
-
-
-
     }
 
     bool CanGrabObject()
@@ -224,7 +220,7 @@ public class FPSController : MonoBehaviour
         Ray lray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f)); 
         if (Physics.Raycast(lray,out RaycastHit lraycastHit, m_MaxShootDistance, m_grabLayermask))
         {
-            if (lraycastHit.collider.CompareTag("Cube"))
+            if (lraycastHit.collider.CompareTag("Cube") || lraycastHit.collider.CompareTag("RefractionCube"))
             {
                 GrabObject(lraycastHit.collider);
             }
