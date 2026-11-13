@@ -18,13 +18,13 @@ public class Portal : MonoBehaviour
     {
         Camera l_Camera = Camera.main;
         Vector3 l_CameraWorldPosition= l_Camera.transform.position;
-        Vector3 l_DirectionWorldPosition = l_Camera.transform.forward;
-        Vector3 l_CameraLocalPosition = m_MirrorPortal.transform.InverseTransformPoint(l_CameraWorldPosition);
-        Vector3 l_DirectionLocalPosition = m_MirrorPortal.transform.InverseTransformDirection(l_DirectionWorldPosition);
-        m_Camera.transform.position=m_OtherPortalTransform.TransformPoint(l_CameraLocalPosition);
-        m_Camera.transform.forward = m_OtherPortalTransform.TransformDirection(l_DirectionLocalPosition);
+        Vector3 l_CameraWorldDirection = l_Camera.transform.forward;
+        Vector3 l_CameraLocalPosition = m_MirrorPortal.m_OtherPortalTransform.InverseTransformPoint(l_CameraWorldPosition);
+        Vector3 l_CameraLocalDirection = m_MirrorPortal.m_OtherPortalTransform.InverseTransformDirection(l_CameraWorldDirection);
+        m_Camera.transform.position=transform.TransformPoint(l_CameraLocalPosition);
+        m_Camera.transform.forward = transform.TransformDirection(l_CameraLocalDirection);
         float l_Distance = Vector3.Distance(m_Camera.transform.position, transform.position);
-        m_Camera.nearClipPlane = m_CameraOffset;
+        m_Camera.nearClipPlane = l_Distance+m_CameraOffset;
     }
     public bool IsValidPosition(Vector3 Position, Vector3 Normal)
     {

@@ -432,8 +432,8 @@ void SetIdleWeaponAnimation()
         Vector3 localPosition=portal.m_OtherPortalTransform.InverseTransformPoint(Worldlposition); 
         Vector3 localForward= portal.m_OtherPortalTransform.InverseTransformDirection(lWorldForward);
 
-        localPosition = Quaternion.Euler(0f, 180f, 0f) * localPosition;
-        localForward = Quaternion.Euler(0f, 180f, 0f) * localForward;
+        /*localPosition = Quaternion.Euler(0f, 180f, 0f) * localPosition;
+        localForward = Quaternion.Euler(0f, 180f, 0f) * localForward;*/
 
         m_CharacterController.enabled = false; 
         transform.position=portal.m_MirrorPortal.transform.TransformPoint(localPosition);
