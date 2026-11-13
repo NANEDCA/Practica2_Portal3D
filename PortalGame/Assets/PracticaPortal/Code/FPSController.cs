@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
+using System.Linq;
 
 public class FPSController : MonoBehaviour
 {
@@ -41,7 +42,13 @@ public class FPSController : MonoBehaviour
     
     public float m_MaxHealth = 100.0f;
     public float m_CurrentHealth = 100.0f;
+   
     [Header("Portals")]
+    public Portal m_PreviewOrange;
+    public Portal m_PreviewBlue;
+   
+    public Color IsValidColor= new Color(0, 1, 0, 0.75f);
+    public Color NoIsValidColor = new Color(1, 0, 0, 0.75f);
     Vector3 m_direction;
     public float m_naxvalidangle = 40f;  
     public float teleportPortalOffset=1.0f;  
@@ -55,8 +62,9 @@ public class FPSController : MonoBehaviour
     [Header("Shoot")]
     public Camera m_Camera;
     public float m_MaxShootDistance = 200.0f;
-    public LayerMask m_PortalLayerMask;
-    public LayerMask m_GrabLayerMask;
+    
+    public LayerMask m_grabLayermask;
+    public LayerMask PortalLayerMask;
     public float m_RecoilTime = 0.5f;
     private float m_NextFireTime = 0f;
     public Portal m_Blue;
@@ -85,7 +93,7 @@ public class FPSController : MonoBehaviour
 
     [Header("Grab")]
     public Transform m_GrabTransform;
-    public float TimeToGrab=0.8f;
+    public float TimeToGrab=0.01f;
     public float msjootAttacjedObjectforce = 20.0f;
 
     [Header("Animation")]
@@ -104,6 +112,12 @@ public class FPSController : MonoBehaviour
     }
     private void Start()
     {
+        m_PreviewOrange.m_Player = this;
+        m_PreviewBlue.m_Player = this;
+        m_Orange.m_Player = this;
+        m_Blue.m_Player = this;
+        m_PreviewOrange = Instantiate(m_PreviewOrange);
+        m_PreviewBlue = Instantiate(m_PreviewBlue);
         m_StartPosition = transform.position;
         m_StartRotation = transform.rotation;
         m_Yaw = transform.rotation.eulerAngles.y;
@@ -165,18 +179,29 @@ public class FPSController : MonoBehaviour
         CollisionFlags l_CollisionFlags = m_CharacterController.Move(ldirection);
 
 
-        if (CanShoot() && MustShoot())
-        {
-            if (Input.GetMouseButtonDown(mouse_ShootButton0))
-                Shoot(m_Orange);
 
-            if (Input.GetMouseButtonDown(mouse_ShootButton1))
-                Shoot(m_Blue);
-        }
-        if (CanReload() && MustReload())
+        if (Input.GetMouseButton(0))
         {
+            Debug.Log("BOT� PREMUT"); 
+            m_PreviewOrange.gameObject.SetActive(true);
+            PreviewPortal(m_PreviewOrange);
 
         } 
+        if (Input.GetMouseButtonUp(0))
+        {
+            Shoot(m_Orange); 
+            m_PreviewOrange.gameObject.SetActive(false);    
+        }
+
+        if (Input.GetMouseButton(mouse_ShootButton1))
+        {
+            PreviewPortal(m_PreviewBlue);
+        }
+        if (Input.GetMouseButtonUp(mouse_ShootButton1))
+        {
+            Shoot(m_Blue);
+            m_PreviewBlue.gameObject.SetActive(false);
+        }
 
         if (CanGrabObject()) 
         {
@@ -196,9 +221,8 @@ public class FPSController : MonoBehaviour
 
     void GrabObject()
     {
-        Ray lray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
-
-        if (Physics.Raycast(lray, out RaycastHit lraycastHit, m_MaxShootDistance, m_GrabLayerMask))
+        Ray lray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f)); 
+        if (Physics.Raycast(lray,out RaycastHit lraycastHit, m_MaxShootDistance, m_grabLayermask))
         {
             if (lraycastHit.collider.CompareTag("Cube"))
             {
@@ -226,11 +250,15 @@ public class FPSController : MonoBehaviour
         if (attachingObject)
         {
             float ldifftime = Time.time - GrabTIme;
-            float lpct = Mathf.Min(1.0f, ldifftime / TimeToGrab);
+            float lpct = Mathf.Clamp01(ldifftime/GrabTIme);
+            m_GrabObjectt.transform.position =Vector3.Lerp(m_GrabObjectt.transform.position, m_GrabTransform.position, lpct);
+            m_GrabObjectt.transform.rotation = Quaternion.Lerp(m_GrabObjectt.transform.rotation, m_GrabTransform.rotation, lpct); 
 
             m_GrabObjectt.transform.position = Vector3.Lerp(m_GrabObjectt.transform.position, m_GrabTransform.position, lpct);
 
-            m_GrabObjectt.transform.rotation = Quaternion.Lerp(m_GrabObjectt.transform.rotation, m_GrabTransform.rotation, lpct);
+                attachingObject = false; 
+                objecAttached = true;
+                
 
             if (lpct >= 1.0f)
             {
@@ -297,11 +325,57 @@ public class FPSController : MonoBehaviour
     } 
     */
 
+    void ChangePreviewCOlor(Portal portalPreview,Color portalcolor)
+    {
+        if (portalPreview!=null) {
+            List<Renderer> portalrenders = portalPreview.GetComponentsInChildren<Renderer>(true).ToList();
+            for (int i = 0; i < portalrenders.Count; i++)
+            {
+                if (portalrenders[i] != null)
+                {
+                    Material l_Material = portalrenders[i].material;
+                    l_Material.color = portalcolor;
+                }
+            }
+        } 
+
+    }
+    void PreviewPortal(Portal previewportal)
+    {
+        Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+
+        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance,PortalLayerMask))
+        {
+
+            Debug.Log("Raycast ha detectat: " + l_RayCastHit.collider.name);
+           // bool isValid = previewportal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal);
+           
+            previewportal.transform.position =
+              l_RayCastHit.point + l_RayCastHit.normal * 0.01f;
+
+            previewportal.transform.rotation =
+                Quaternion.LookRotation(l_RayCastHit.normal);
+
+            previewportal.gameObject.SetActive(true); 
+
+            ChangePreviewCOlor(previewportal,IsValidColor);
+            
+            
+        }
+        else
+        {
+            previewportal.gameObject.SetActive(false);
+        }
+
+
+    }
+
+
 
     void Shoot(Portal _Portal) {
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
-        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, m_PortalLayerMask))
+        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, PortalLayerMask))
         {
             if (_Portal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal))
             {
