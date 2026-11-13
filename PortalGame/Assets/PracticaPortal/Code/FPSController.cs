@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
+using System.Linq;
 
 public class FPSController : MonoBehaviour
 {
@@ -45,10 +46,9 @@ public class FPSController : MonoBehaviour
     [Header("Portals")]
     public Portal m_PreviewOrange;
     public Portal m_PreviewBlue;
-    public List<Renderer> m_PreviewBluePOrtal= new List<Renderer>(); 
-    public List<Renderer> m_PreviewOrangePOrtal= new List<Renderer>(); 
-    public Color IsValidColor= new Color(0, 1, 0, 0.35f);
-    public Color NoIsValidColor = new Color(1, 0, 0, 0.35f);
+   
+    public Color IsValidColor= new Color(0, 1, 0, 0.75f);
+    public Color NoIsValidColor = new Color(1, 0, 0, 0.75f);
     Vector3 m_direction;
     public float m_naxvalidangle = 40f;  
     public float teleportPortalOffset=1.0f;  
@@ -112,6 +112,12 @@ public class FPSController : MonoBehaviour
     }
     private void Start()
     {
+        m_PreviewOrange.m_Player = this;
+        m_PreviewBlue.m_Player = this;
+        m_Orange.m_Player = this;
+        m_Blue.m_Player = this;
+        m_PreviewOrange = Instantiate(m_PreviewOrange);
+        m_PreviewBlue = Instantiate(m_PreviewBlue);
         m_StartPosition = transform.position;
         m_StartRotation = transform.rotation;
         m_Yaw = transform.rotation.eulerAngles.y;
@@ -172,26 +178,30 @@ public class FPSController : MonoBehaviour
         ldirection.y = m_VerticalSpeed * Time.deltaTime; 
         CollisionFlags l_CollisionFlags = m_CharacterController.Move(ldirection);
 
-        if (Input.GetMouseButton(mouse_ShootButton0))
+
+
+        if (Input.GetMouseButton(0))
         {
-            PreviewPortal(m_PreviewOrange, m_PreviewOrangePOrtal);
-           // ShowPreview(m_PreviewOrangePOrtal);
-            
-        }
-        if (Input.GetMouseButton(mouse_ShootButton1))
+            Debug.Log("BOTÓ PREMUT"); 
+            m_PreviewOrange.gameObject.SetActive(true);
+            PreviewPortal(m_PreviewOrange);
+
+        } 
+        if (Input.GetMouseButtonUp(0))
         {
-            PreviewPortal(m_PreviewBlue, m_PreviewBluePOrtal);
-           // ShowPreview(m_PreviewBluePOrtal);
+            Shoot(m_Orange); 
+            m_PreviewOrange.gameObject.SetActive(false);    
         }
 
-        if (CanShoot() && Input.GetMouseButtonDown(mouse_ShootButton0))
+        if (Input.GetMouseButton(mouse_ShootButton1))
         {
-            Shoot(m_Orange);
+            PreviewPortal(m_PreviewBlue);
         }
-        if (CanReload() && Input.GetMouseButtonDown(mouse_ShootButton1))
+        if (Input.GetMouseButtonUp(mouse_ShootButton1))
         {
             Shoot(m_Blue);
-        } 
+            m_PreviewBlue.gameObject.SetActive(false);
+        }
 
         if (CanGrabObject()) 
         {
@@ -247,7 +257,7 @@ public class FPSController : MonoBehaviour
 
                 attachingObject = false; 
                 objecAttached = true;
-                Debug.Log("OBJECTE PREPARAT PER LLENÇAR!");
+                
 
             }
         }
@@ -321,43 +331,53 @@ public class FPSController : MonoBehaviour
     } 
     */
 
-    void PreviewPortal(Portal portal, List<Renderer> portalsRenders )
-    { 
-        bool isvalid=false; 
-        Color color = NoIsValidColor;
-        Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
-        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, PortalLayerMask))
-        {
-            isvalid = portal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal);
-
-
-            portal.transform.position =
-            l_RayCastHit.point + l_RayCastHit.normal * 0.01f;
-
-            portal.transform.rotation =
-                Quaternion.LookRotation(l_RayCastHit.normal);
-        }
-        color = NoIsValidColor;
-
-        portal.gameObject.SetActive(true);
-        if (isvalid) {
-            color = IsValidColor;
-        } 
-       
-        foreach (Renderer r in portalsRenders) { 
-          r.material.color = color;
-        }
-    }
-    void ShowPreview(List<Renderer> portalsRenders)
+    void ChangePreviewCOlor(Portal portalPreview,Color portalcolor)
     {
-        foreach (Renderer r in portalsRenders)
-        {
-            if (r != null)
+        if (portalPreview!=null) {
+            List<Renderer> portalrenders = portalPreview.GetComponentsInChildren<Renderer>(true).ToList();
+            for (int i = 0; i < portalrenders.Count; i++)
             {
-                r.gameObject.SetActive(true);
+                if (portalrenders[i] != null)
+                {
+                    Material l_Material = portalrenders[i].material;
+                    l_Material.color = portalcolor;
+                }
             }
-        }
+        } 
+
     }
+    void PreviewPortal(Portal previewportal)
+    {
+        Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+
+        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance,PortalLayerMask))
+        {
+
+            Debug.Log("Raycast ha detectat: " + l_RayCastHit.collider.name);
+           // bool isValid = previewportal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal);
+           
+            previewportal.transform.position =
+              l_RayCastHit.point + l_RayCastHit.normal * 0.01f;
+
+            previewportal.transform.rotation =
+                Quaternion.LookRotation(l_RayCastHit.normal);
+
+            previewportal.gameObject.SetActive(true); 
+
+            ChangePreviewCOlor(previewportal,IsValidColor);
+            
+            
+        }
+        else
+        {
+            previewportal.gameObject.SetActive(false);
+        }
+
+
+    }
+
+
+
     void Shoot(Portal _Portal) {
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 

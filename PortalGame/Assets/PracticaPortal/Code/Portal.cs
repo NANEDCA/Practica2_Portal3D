@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class Portal : MonoBehaviour
 {
@@ -27,7 +28,28 @@ public class Portal : MonoBehaviour
     }
     public bool IsValidPosition(Vector3 Position, Vector3 Normal)
     {
+
+       
+
+        if (m_Player == null)
+        {
+            Debug.LogError("Falta assignar m_Player!");
+            return false;
+        }
+
+        if (m_ValidPositions == null || m_ValidPositions.Count == 0)
+        {
+            Debug.LogError("La llista m_ValidPositions està buida!");
+            return false;
+        }
+
+
         Camera l_Camera = Camera.main;
+        if (l_Camera == null)
+        {
+            Debug.LogError("No s'ha trobat la Main Camera!");
+            return false;
+        }
         transform.position = Position;
         transform.rotation = Quaternion.LookRotation(Normal);
         float l_MaxValidDotAngle = Mathf.Cos(m_MaxAngleValidation*Mathf.Deg2Rad);
