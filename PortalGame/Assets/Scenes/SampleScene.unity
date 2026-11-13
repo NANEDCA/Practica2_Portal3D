@@ -337,7 +337,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1954579138522104, guid: 9eddf26057390cb40a4f054ef935c559, type: 3}
+      insertIndex: 3
+      addedObject: {fileID: 1948230674}
   m_SourcePrefab: {fileID: 100100000, guid: 9eddf26057390cb40a4f054ef935c559, type: 3}
 --- !u!1 &465145737
 GameObject:
@@ -478,6 +481,10 @@ PrefabInstance:
     - target: {fileID: 714530214080426928, guid: ea7dbbdc97c97334c97b87d023a60904, type: 3}
       propertyPath: PortalLayerMask.m_Bits
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 714530214080426928, guid: ea7dbbdc97c97334c97b87d023a60904, type: 3}
+      propertyPath: m_grabLayermask.m_Bits
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 714530214080426928, guid: ea7dbbdc97c97334c97b87d023a60904, type: 3}
       propertyPath: m_ShootLayerMask.m_Bits
@@ -1695,6 +1702,20 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1954579138522104, guid: 9eddf26057390cb40a4f054ef935c559, type: 3}
   m_PrefabInstance: {fileID: 318755071}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1948230674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1948230669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c21363fa8644ec4195dd077cb128500, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompanionCube
+  m_maxValidAngle: 40
+  m_teleportportalOffset: 1
 --- !u!1 &2030569661 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3767576647739693868, guid: 1eece9497329f274f84734ae7617e412, type: 3}
