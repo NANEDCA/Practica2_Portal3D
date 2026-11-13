@@ -182,7 +182,7 @@ public class FPSController : MonoBehaviour
 
         if (Input.GetMouseButton(0))
         {
-            Debug.Log("BOTÓ PREMUT"); 
+            Debug.Log("BOTï¿½ PREMUT"); 
             m_PreviewOrange.gameObject.SetActive(true);
             PreviewPortal(m_PreviewOrange);
 
@@ -212,16 +212,13 @@ public class FPSController : MonoBehaviour
 
 
 
-    } 
+    }
+
     bool CanGrabObject()
     {
-      if (Input.GetKeyDown(m_GrabObject) && !attachingObject && !objecAttached)
-        {
-            return true;
-        } 
-      return false;
+        return Input.GetKeyDown(m_GrabObject) && !attachingObject && !objecAttached;
+    }
 
-    } 
     void GrabObject()
     {
         Ray lray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f)); 
@@ -233,18 +230,23 @@ public class FPSController : MonoBehaviour
             }
         }
     }
+
     void GrabObject(Collider _Collider)
-    {  
-        
-       m_GrabObjectt =_Collider.GetComponent<Rigidbody>();  
-        m_GrabObjectt.isKinematic=true; 
+    {
+        m_GrabObjectt = _Collider.GetComponent<Rigidbody>();
+
+        if (m_GrabObjectt == null)
+            return;
+
+        m_GrabObjectt.isKinematic = true;
         attachingObject = true;
         m_GrabObjectt.transform.SetParent(m_GrabTransform);
-        GrabTIme = Time.time;
 
+        GrabTIme = Time.time;
     }
-    void UpdateAttachingObject() { 
-    
+
+    void UpdateAttachingObject()
+    {
         if (attachingObject)
         {
             float ldifftime = Time.time - GrabTIme;
@@ -252,22 +254,23 @@ public class FPSController : MonoBehaviour
             m_GrabObjectt.transform.position =Vector3.Lerp(m_GrabObjectt.transform.position, m_GrabTransform.position, lpct);
             m_GrabObjectt.transform.rotation = Quaternion.Lerp(m_GrabObjectt.transform.rotation, m_GrabTransform.rotation, lpct); 
 
-            if (lpct==1.0f)
-            {
+            m_GrabObjectt.transform.position = Vector3.Lerp(m_GrabObjectt.transform.position, m_GrabTransform.position, lpct);
 
                 attachingObject = false; 
                 objecAttached = true;
                 
 
+            if (lpct >= 1.0f)
+            {
+                attachingObject = false;
+                objecAttached = true;
             }
         }
-    
-    } 
-
+    }
     void UpdateAttachedObject()
     { 
 
-       if (objecAttached)  
+        if (objecAttached)  
         {  
             if (Input.GetKeyUp(m_GrabObject)) 
             {
@@ -276,14 +279,8 @@ public class FPSController : MonoBehaviour
             else if (Input.GetMouseButtonDown(mouse_ShootButton0))
             {
                 ThrowAttachedObkect(m_ShootButtonobjectforce); 
-
-            }
-            
-
-                
+            }      
         }
-
-
     }
 
     void ThrowAttachedObkect(float force)
@@ -293,9 +290,6 @@ public class FPSController : MonoBehaviour
         m_GrabObjectt.transform.SetParent(null); 
         objecAttached=false;
     }
-
-
-
     bool CanReload()
     {
         return !m_IsReloading && m_CurrentAmmo < m_MagazineSize && m_ReserveAmmo > 0;
@@ -385,11 +379,9 @@ public class FPSController : MonoBehaviour
         {
             if (_Portal.IsValidPosition(l_RayCastHit.point, l_RayCastHit.normal))
             {
-                _Portal.transform.position =
-               l_RayCastHit.point + l_RayCastHit.normal * 0.01f;
+                _Portal.transform.position = l_RayCastHit.point + l_RayCastHit.normal * 0.01f;
 
-                _Portal.transform.rotation =
-                    Quaternion.LookRotation(l_RayCastHit.normal);
+                _Portal.transform.rotation = Quaternion.LookRotation(l_RayCastHit.normal);
 
                 _Portal.gameObject.SetActive(true);
             }

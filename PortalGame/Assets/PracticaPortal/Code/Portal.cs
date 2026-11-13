@@ -39,7 +39,7 @@ public class Portal : MonoBehaviour
 
         if (m_ValidPositions == null || m_ValidPositions.Count == 0)
         {
-            Debug.LogError("La llista m_ValidPositions està buida!");
+            Debug.LogError("La llista m_ValidPositions estï¿½ buida!");
             return false;
         }
 
