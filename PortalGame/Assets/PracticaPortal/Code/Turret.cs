@@ -19,6 +19,8 @@ public class Turret : MonoBehaviour
             if (Physics.Raycast(ray, out RaycastHit lrayhit, maxDistance, m_LaserMask.value, QueryTriggerInteraction.Ignore))
             {
                 lposition = Vector3.forward * lrayhit.distance;
+                if (lrayhit.collider.CompareTag("RefractionCube"))
+                    lrayhit.collider.GetComponent<RefractionCube>().Refract();
             }
             m_laser.SetPosition(1, lposition);
         }
