@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class Portal : MonoBehaviour
 {
@@ -10,27 +8,45 @@ public class Portal : MonoBehaviour
     public Transform m_OtherPortalTransform;
     public Portal m_MirrorPortal;
     public float m_CameraOffset = 0.5f;
+
+    [Header("Portal Size")]
+    [Range(0.5f, 2.0f)]
+    public float m_SizeMultiplier = 1.0f;
+
     public List<Transform> m_ValidPositions;
     public float m_RaycastValidationOffsetDistance;
     public float m_MaxAngleValidation = 5.0f;
 
     private void Update()
     {
+        if (m_MirrorPortal == null ||
+            m_MirrorPortal.m_OtherPortalTransform == null ||
+            m_Camera == null ||
+            Camera.main == null)
+        {
+            return;
+        }
+
         Camera l_Camera = Camera.main;
-        Vector3 l_CameraWorldPosition= l_Camera.transform.position;
+
+        Vector3 l_CameraWorldPosition = l_Camera.transform.position;
         Vector3 l_CameraWorldDirection = l_Camera.transform.forward;
-        Vector3 l_CameraLocalPosition = m_MirrorPortal.m_OtherPortalTransform.InverseTransformPoint(l_CameraWorldPosition);
-        Vector3 l_CameraLocalDirection = m_MirrorPortal.m_OtherPortalTransform.InverseTransformDirection(l_CameraWorldDirection);
-        m_Camera.transform.position=transform.TransformPoint(l_CameraLocalPosition);
+
+        Vector3 l_CameraLocalPosition =
+            m_MirrorPortal.m_OtherPortalTransform.InverseTransformPoint(l_CameraWorldPosition);
+
+        Vector3 l_CameraLocalDirection =
+            m_MirrorPortal.m_OtherPortalTransform.InverseTransformDirection(l_CameraWorldDirection);
+
+        m_Camera.transform.position = transform.TransformPoint(l_CameraLocalPosition);
         m_Camera.transform.forward = transform.TransformDirection(l_CameraLocalDirection);
+
         float l_Distance = Vector3.Distance(m_Camera.transform.position, transform.position);
-        m_Camera.nearClipPlane = l_Distance+m_CameraOffset;
+        m_Camera.nearClipPlane = l_Distance + m_CameraOffset;
     }
+
     public bool IsValidPosition(Vector3 Position, Vector3 Normal)
     {
-
-       
-
         if (m_Player == null)
         {
             Debug.LogError("Falta assignar m_Player!");
@@ -39,38 +55,55 @@ public class Portal : MonoBehaviour
 
         if (m_ValidPositions == null || m_ValidPositions.Count == 0)
         {
-            Debug.LogError("La llista m_ValidPositions est� buida!");
+            Debug.LogError("La llista m_ValidPositions está buida!");
             return false;
         }
 
-
         Camera l_Camera = Camera.main;
+
         if (l_Camera == null)
         {
             Debug.LogError("No s'ha trobat la Main Camera!");
             return false;
         }
+
         transform.position = Position;
         transform.rotation = Quaternion.LookRotation(Normal);
-        float l_MaxValidDotAngle = Mathf.Cos(m_MaxAngleValidation*Mathf.Deg2Rad);
+
+        float l_MaxValidDotAngle =
+            Mathf.Cos(m_MaxAngleValidation * Mathf.Deg2Rad);
+
         for (int i = 0; i < m_ValidPositions.Count; ++i)
         {
-            Vector3 l_Direction = m_ValidPositions[i].position - l_Camera.transform.position;
-            float l_Distance = l_Direction.magnitude + m_RaycastValidationOffsetDistance;
+            Vector3 l_Direction =
+                m_ValidPositions[i].position - l_Camera.transform.position;
+
+            float l_Distance =
+                l_Direction.magnitude + m_RaycastValidationOffsetDistance;
+
             l_Direction.Normalize();
+
             Ray l_Ray = new Ray(l_Camera.transform.position, l_Direction);
-            if (Physics.Raycast(l_Ray, out RaycastHit l_HitInfo, l_Distance, m_Player.PortalLayerMask.value, QueryTriggerInteraction.Ignore))
+
+            if (Physics.Raycast(
+                l_Ray,
+                out RaycastHit l_HitInfo,
+                l_Distance,
+                m_Player.PortalLayerMask.value,
+                QueryTriggerInteraction.Ignore))
             {
                 if (l_HitInfo.collider.CompareTag("PortalEnabled"))
                 {
-                    float l_DistanceToHitPoint = Vector3.Distance(l_HitInfo.point, m_ValidPositions[i].position);
+                    float l_DistanceToHitPoint =
+                        Vector3.Distance(l_HitInfo.point, m_ValidPositions[i].position);
+
                     if (l_DistanceToHitPoint < m_RaycastValidationOffsetDistance)
                     {
-                        float l_DotAngle = Vector3.Dot(Normal, l_HitInfo.normal);
+                        float l_DotAngle =
+                            Vector3.Dot(Normal, l_HitInfo.normal);
+
                         if (l_DotAngle < l_MaxValidDotAngle)
-                        {
                             return false;
-                        }
                     }
                     else
                     {
@@ -87,7 +120,7 @@ public class Portal : MonoBehaviour
                 return false;
             }
         }
+
         return true;
     }
 }
-
