@@ -35,8 +35,8 @@ public class FPSController : MonoBehaviour
     public float m_JumpSpeed = 0.0f;
     public float m_SprintSpeed = 0.0f;
 
-    Vector3 m_StartPosition;
-    Quaternion m_StartRotation;
+    public Vector3 m_StartPosition;
+    public Quaternion m_StartRotation;
 
     [Header("Health")]
     
@@ -127,7 +127,7 @@ public class FPSController : MonoBehaviour
         GameController.GetGameController().SetPlayer(this);
     }
     private void Update()
-    {
+    {    
         if (Input.GetKeyDown(m_DebugLockAngleKeyCode))
             m_AngleLocked = !m_AngleLocked;
 
@@ -182,7 +182,7 @@ public class FPSController : MonoBehaviour
 
         if (Input.GetMouseButton(0))
         {
-            Debug.Log("BOT� PREMUT"); 
+            
             m_PreviewOrange.gameObject.SetActive(true);
             PreviewPortal(m_PreviewOrange);
 
@@ -209,7 +209,7 @@ public class FPSController : MonoBehaviour
         } 
         UpdateAttachedObject(); 
         UpdateAttachingObject();
-
+        //LaserKill(Laser);
 
 
     }
@@ -414,8 +414,9 @@ void SetIdleWeaponAnimation()
             {
                 Teleport(portal);
             }
-        } 
+        }
        
+
     }
     void Kill()
     {
@@ -450,7 +451,18 @@ void SetIdleWeaponAnimation()
         float ldotAngle = Vector3.Dot(-m_direction, portal.transform.forward); 
         return ldotAngle >= lmaxDotangle;
 
-    }
+    } 
+    /*
+    private void LaserKill(Collider laser)
+    {   
+        if (laser.CompareTag("Player"))
+        {
+            GameController.GetGameController().Restart(); 
+            Restart();
+        }
+
+    } 
+    */
     public void Restart()
     {
         m_CharacterController.enabled = false;
