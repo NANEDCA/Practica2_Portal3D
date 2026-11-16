@@ -11,6 +11,7 @@ public class RefractionCube : MonoBehaviour
 
     public float m_maxValidAngle = 40f;
     public float m_teleportportalOffset = 1.0f;
+    bool playerkilled = false;
 
     Rigidbody rb;
 
@@ -21,12 +22,33 @@ public class RefractionCube : MonoBehaviour
 
     private void Update()
     {
+      
         if (m_DisableLaserOnNextFrame)
-            m_Laser.gameObject.SetActive(false);
+            m_Laser.gameObject.SetActive(false); 
+
+       
+        Vector3 lposition = Vector3.forward * maxDistance;
+        Ray ray = new Ray(m_Laser.transform.position, m_Laser.transform.forward);
+        if (Physics.Raycast(ray, out RaycastHit lrayhit, maxDistance, m_LaserMask.value, QueryTriggerInteraction.Ignore))
+        {
+            lposition = Vector3.forward * lrayhit.distance;
+
+            if (lrayhit.collider.CompareTag("Player") && !playerkilled)
+            {
+                LaserKill();
+                playerkilled = false;
+            }
+        }
+        m_Laser.SetPosition(1, lposition);
 
         m_DisableLaserOnNextFrame = true;
     }
+    private void LaserKill()
+    {
+        GameController.GetGameController().Restart();
+        GameController.GetGameController().GetPlayer().Restart();
 
+    }
     public void Refract()
     {
         if (!m_DisableLaserOnNextFrame)

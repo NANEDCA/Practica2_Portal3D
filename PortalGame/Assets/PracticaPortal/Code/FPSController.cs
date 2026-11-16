@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
 using System.Linq;
+using System.Reflection;
 
 public class FPSController : MonoBehaviour
 {
@@ -287,32 +288,17 @@ public class FPSController : MonoBehaviour
 
         if (Input.GetMouseButton(mouse_ShootButton0))
         {
-           GrabObject();
-        } 
-        UpdateAttachedObject(); 
-        UpdateAttachingObject();
-        //LaserKill(Laser);
+            GrabObject();
             m_OrangeSizeMultiplier += l_Scroll * m_PortalSizeStep * 10.0f;
 
-            m_OrangeSizeMultiplier = Mathf.Clamp(
-                m_OrangeSizeMultiplier,
-                m_MinPortalSize,
-                m_MaxPortalSize
-            );
+            m_OrangeSizeMultiplier = Mathf.Clamp(m_OrangeSizeMultiplier, m_MinPortalSize, m_MaxPortalSize);
 
-            UpdatePortalScale(
-                m_Orange,
-                m_OrangeBaseScale,
-                m_OrangeSizeMultiplier
-            );
+            UpdatePortalScale(m_Orange, m_OrangeBaseScale, m_OrangeSizeMultiplier);
 
-            UpdatePortalScale(
-                m_PreviewOrange,
-                m_PreviewOrangeBaseScale,
-                m_OrangeSizeMultiplier
-            );
-        }
-
+            UpdatePortalScale(m_PreviewOrange, m_PreviewOrangeBaseScale, m_OrangeSizeMultiplier);
+        } 
+        
+          
         if (Input.GetMouseButton(mouse_ShootButton1))
         {
             m_BlueSizeMultiplier += l_Scroll * m_PortalSizeStep * 10.0f;
@@ -323,11 +309,7 @@ public class FPSController : MonoBehaviour
                 m_MaxPortalSize
             );
 
-            UpdatePortalScale(
-                m_Blue,
-                m_BlueBaseScale,
-                m_BlueSizeMultiplier
-            );
+            UpdatePortalScale( m_Blue, m_BlueBaseScale, m_BlueSizeMultiplier);
 
             UpdatePortalScale(
                 m_PreviewBlue,
@@ -480,19 +462,29 @@ public class FPSController : MonoBehaviour
 
             previewportal.gameObject.SetActive(true);
 
-            ChangePreviewCOlor(previewportal, IsValidColor);
+            if (l_RayCastHit.collider.gameObject.layer == 6)
+            {
+                previewportal.gameObject.SetActive(true);
+                ChangePreviewCOlor(previewportal, NoIsValidColor);
+            }
+            else{
+                ChangePreviewCOlor(previewportal, IsValidColor);
+            }
+
+
         }
         else
         {
             previewportal.gameObject.SetActive(false);
         }
+       
     }
 
     void Shoot(Portal _Portal)
     {
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
-        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, PortalLayerMask))
+        if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, PortalLayerMask)&& l_RayCastHit.collider.gameObject.layer != 6)
         {
             Vector3 l_BaseScale;
             float l_SizeMultiplier;
@@ -577,19 +569,9 @@ public class FPSController : MonoBehaviour
     {
         float lmaxDotangle = Mathf.Cos(m_naxvalidangle * Mathf.Deg2Rad);
         float ldotAngle = Vector3.Dot(-m_direction, portal.transform.forward);
-
+        return ldotAngle >= lmaxDotangle;
     } 
-    /*
-    private void LaserKill(Collider laser)
-    {   
-        if (laser.CompareTag("Player"))
-        {
-            GameController.GetGameController().Restart(); 
-            Restart();
-        }
-
-    } 
-    */
+   
     public void Restart()
     {
         m_CharacterController.enabled = false;

@@ -10,29 +10,6 @@ public class Turret : MonoBehaviour
     public float maxDistance;
     public LayerMask m_LaserMask;
     bool playerkilled = false;
-    
-    private void Update()
-    {
-        Vector3 lposition=Vector3.forward*maxDistance; 
-        Ray ray=new Ray(m_laser.transform.position,m_laser.transform.forward); 
-        if (Physics.Raycast(ray,out RaycastHit lrayhit,maxDistance,m_LaserMask.value,QueryTriggerInteraction.Ignore))
-        {
-            lposition=Vector3.forward*lrayhit.distance; 
-
-            if (lrayhit.collider.CompareTag("Player")&&!playerkilled)
-            {
-                LaserKill(); 
-                playerkilled = false;
-            }
-        }
-        m_laser.SetPosition(1,lposition);
-    }
-    private void LaserKill() {
-        GameController.GetGameController().Restart();
-        GameController.GetGameController().GetPlayer().Restart();
-        
-    }
-}
     public float m_AngleToFall = 30.0f;
 
     [Header("Portal Teleport")]
@@ -45,14 +22,41 @@ public class Turret : MonoBehaviour
     {
         m_Rigidbody = GetComponent<Rigidbody>();
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!other.CompareTag("Portal"))
+            return;
+
+        Portal l_Portal = other.GetComponent<Portal>();
+
+        if (l_Portal != null && CanTeleport(l_Portal))
+            Teleport(l_Portal);
+    }
+
 
     private void Update()
     {
         bool l_Fallen =
-            Vector3.Dot(transform.up, Vector3.up) <
-            Mathf.Cos(m_AngleToFall * Mathf.Deg2Rad);
+          Vector3.Dot(transform.up, Vector3.up) <
+          Mathf.Cos(m_AngleToFall * Mathf.Deg2Rad);
 
         m_laser.gameObject.SetActive(!l_Fallen);
+        Vector3 lposition=Vector3.forward*maxDistance; 
+        Ray ray=new Ray(m_laser.transform.position,m_laser.transform.forward); 
+        if (Physics.Raycast(ray,out RaycastHit lrayhit,maxDistance,m_LaserMask.value,QueryTriggerInteraction.Ignore))
+        {
+            lposition=Vector3.forward*lrayhit.distance; 
+
+            if (lrayhit.collider.CompareTag("Player")&&!playerkilled&&!l_Fallen)
+            {
+                LaserKill(); 
+                playerkilled = false;
+            }
+        }
+        m_laser.SetPosition(1,lposition);
+
+
+       
 
         if (!l_Fallen)
         {
@@ -84,18 +88,11 @@ public class Turret : MonoBehaviour
             m_laser.SetPosition(1, l_Position);
         }
     }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (!other.CompareTag("Portal"))
-            return;
-
-        Portal l_Portal = other.GetComponent<Portal>();
-
-        if (l_Portal != null && CanTeleport(l_Portal))
-            Teleport(l_Portal);
+    private void LaserKill() {
+        GameController.GetGameController().Restart();
+        GameController.GetGameController().GetPlayer().Restart();
+        
     }
-
     private bool CanTeleport(Portal portal)
     {
         if (m_Rigidbody == null ||
@@ -114,7 +111,6 @@ public class Turret : MonoBehaviour
 
         return l_DotAngle >= l_MaxDotAngle;
     }
-
     private void Teleport(Portal portal)
     {
         Vector3 l_Direction = m_Rigidbody.linearVelocity.normalized;
@@ -153,3 +149,4 @@ public class Turret : MonoBehaviour
             portal.m_MirrorPortal.transform.TransformDirection(l_LocalVelocity);
     }
 }
+  
