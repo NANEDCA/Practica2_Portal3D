@@ -3,14 +3,21 @@ using UnityEngine.Events;
 
 public class PortalButton : MonoBehaviour
 {
-    public UnityEvent m_event; 
+    public UnityEvent m_event;
+    public Animation DoorAnimationM;
      private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Cube"))
         {
-           m_event.Invoke();
+            Debug.Log("Cube Detectat!");
+            m_event.Invoke();
         }
-    }
-        
-    
+    } 
+
+    public void OpenDoor()
+    {
+        Debug.Log("OBRINT PORTA!");
+        DoorAnimationM.Play();      
+    }       
+   
 }

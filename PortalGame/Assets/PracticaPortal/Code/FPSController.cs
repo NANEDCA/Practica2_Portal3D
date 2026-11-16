@@ -40,8 +40,8 @@ public class FPSController : MonoBehaviour
     public float m_JumpSpeed = 0.0f;
     public float m_SprintSpeed = 0.0f;
 
-    Vector3 m_StartPosition;
-    Quaternion m_StartRotation;
+    public Vector3 m_StartPosition;
+    public Quaternion m_StartRotation;
 
     [Header("Health")]
     public float m_MaxHealth = 100.0f;
@@ -163,7 +163,7 @@ public class FPSController : MonoBehaviour
     }
 
     private void Update()
-    {
+    {    
         if (Input.GetKeyDown(m_DebugLockAngleKeyCode))
             m_AngleLocked = !m_AngleLocked;
 
@@ -287,6 +287,11 @@ public class FPSController : MonoBehaviour
 
         if (Input.GetMouseButton(mouse_ShootButton0))
         {
+           GrabObject();
+        } 
+        UpdateAttachedObject(); 
+        UpdateAttachingObject();
+        //LaserKill(Laser);
             m_OrangeSizeMultiplier += l_Scroll * m_PortalSizeStep * 10.0f;
 
             m_OrangeSizeMultiplier = Mathf.Clamp(
@@ -573,9 +578,18 @@ public class FPSController : MonoBehaviour
         float lmaxDotangle = Mathf.Cos(m_naxvalidangle * Mathf.Deg2Rad);
         float ldotAngle = Vector3.Dot(-m_direction, portal.transform.forward);
 
-        return ldotAngle >= lmaxDotangle;
-    }
+    } 
+    /*
+    private void LaserKill(Collider laser)
+    {   
+        if (laser.CompareTag("Player"))
+        {
+            GameController.GetGameController().Restart(); 
+            Restart();
+        }
 
+    } 
+    */
     public void Restart()
     {
         m_CharacterController.enabled = false;
