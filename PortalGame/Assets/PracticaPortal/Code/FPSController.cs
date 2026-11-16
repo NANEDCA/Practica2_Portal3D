@@ -558,6 +558,7 @@ public class FPSController : MonoBehaviour
 
         transform.position = portal.m_MirrorPortal.transform.TransformPoint(localPosition);
         transform.forward = portal.m_MirrorPortal.transform.TransformDirection(localForward);
+        transform.position += transform.forward * 2f;
 
         m_Yaw = transform.eulerAngles.y;
         m_direction = Vector3.zero;
