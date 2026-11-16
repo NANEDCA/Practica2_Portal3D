@@ -31,16 +31,10 @@ public class Portal : MonoBehaviour
 
         Vector3 l_CameraWorldPosition = l_Camera.transform.position;
         Vector3 l_CameraWorldDirection = l_Camera.transform.forward;
-
-        Vector3 l_CameraLocalPosition =
-            m_MirrorPortal.m_OtherPortalTransform.InverseTransformPoint(l_CameraWorldPosition);
-
-        Vector3 l_CameraLocalDirection =
-            m_MirrorPortal.m_OtherPortalTransform.InverseTransformDirection(l_CameraWorldDirection);
-
+        Vector3 l_CameraLocalPosition = m_MirrorPortal.m_OtherPortalTransform.InverseTransformPoint(l_CameraWorldPosition);
+        Vector3 l_CameraLocalDirection = m_MirrorPortal.m_OtherPortalTransform.InverseTransformDirection(l_CameraWorldDirection);
         m_Camera.transform.position = transform.TransformPoint(l_CameraLocalPosition);
         m_Camera.transform.forward = transform.TransformDirection(l_CameraLocalDirection);
-
         float l_Distance = Vector3.Distance(m_Camera.transform.position, transform.position);
         m_Camera.nearClipPlane = l_Distance + m_CameraOffset;
     }
