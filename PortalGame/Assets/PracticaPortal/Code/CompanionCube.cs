@@ -1,56 +1,81 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class CompanionCube : MonoBehaviour
 {
-    public float m_maxValidAngle = 40f; 
-    Rigidbody rb;
+    public float m_maxValidAngle = 40f;
     public float m_teleportportalOffset = 1.0f;
+
+    Rigidbody rb;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
     }
-    
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Portal"))
-        {
-            Portal portal = other.GetComponent<Portal>();
+        if (!other.CompareTag("Portal"))
+            return;
 
-            if (CanTeleport(portal))
-            {
-                Teleport(portal);
-            }
-        }
+        Portal portal = other.GetComponent<Portal>();
+
+        if (portal != null && CanTeleport(portal))
+            Teleport(portal);
     }
 
     private bool CanTeleport(Portal portal)
     {
-        float lmaxDotangle = Mathf.Cos(m_maxValidAngle * Mathf.Deg2Rad);
-        Vector3 lDirection = rb.linearVelocity.normalized;
-        float ldotAngle = Vector3.Dot(-lDirection, portal.transform.forward);
-        return ldotAngle >= lmaxDotangle;
+        if (rb == null || rb.linearVelocity.sqrMagnitude < 0.0001f)
+            return false;
 
+        float l_MaxDotAngle =
+            Mathf.Cos(m_maxValidAngle * Mathf.Deg2Rad);
+
+        Vector3 l_Direction = rb.linearVelocity.normalized;
+
+        float l_DotAngle =
+            Vector3.Dot(-l_Direction, portal.transform.forward);
+
+        return l_DotAngle >= l_MaxDotAngle;
     }
-    public void Teleport(Portal portal) 
 
-    {   
-        Vector3 lDirection =rb.linearVelocity.normalized; 
+    public void Teleport(Portal portal)
+    {
+        Vector3 l_Direction = rb.linearVelocity.normalized;
 
-        Vector3 Worldlposition = transform.position + lDirection * m_teleportportalOffset;
-        Vector3 lWorldForward = transform.forward;
-        Vector3 worldLinearVelocity = rb.linearVelocity; 
+        Vector3 l_WorldPosition =
+            transform.position + l_Direction * m_teleportportalOffset;
 
-        Vector3 localPosition = portal.m_OtherPortalTransform.InverseTransformPoint(Worldlposition);
-        Vector3 localForward = portal.m_OtherPortalTransform.InverseTransformDirection(lWorldForward);
-        Vector3 localLinearVelocity = portal.m_OtherPortalTransform.InverseTransformDirection(worldLinearVelocity);
+        Vector3 l_WorldForward = transform.forward;
+        Vector3 l_WorldLinearVelocity = rb.linearVelocity;
 
+        Vector3 l_LocalPosition =
+            portal.m_OtherPortalTransform.InverseTransformPoint(l_WorldPosition);
+
+        Vector3 l_LocalForward =
+            portal.m_OtherPortalTransform.InverseTransformDirection(l_WorldForward);
+
+        Vector3 l_LocalLinearVelocity =
+            portal.m_OtherPortalTransform.InverseTransformDirection(l_WorldLinearVelocity);
+
+        // Calculamos cuánto debe cambiar el tamaño del cubo.
+        float l_ScaleRatio =
+            portal.m_MirrorPortal.m_SizeMultiplier / portal.m_SizeMultiplier;
 
         rb.isKinematic = true;
-        transform.position = portal.m_MirrorPortal.transform.TransformPoint(localPosition);
-        transform.forward = portal.m_MirrorPortal.transform.TransformDirection(localForward);
+
+        transform.position =
+            portal.m_MirrorPortal.transform.TransformPoint(l_LocalPosition);
+
+        transform.forward =
+            portal.m_MirrorPortal.transform.TransformDirection(l_LocalForward);
+
+        transform.localScale *= l_ScaleRatio;
+
         rb.isKinematic = false;
-        rb.linearVelocity = portal.m_MirrorPortal.transform.TransformDirection(localLinearVelocity);
 
-
+        rb.linearVelocity =
+            portal.m_MirrorPortal.transform.TransformDirection(l_LocalLinearVelocity);
     }
 }
