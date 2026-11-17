@@ -546,9 +546,7 @@ public class FPSController : MonoBehaviour
         }
     }
 
-    void Kill()
-    {
-    }
+    
 
     public void Teleport(Portal portal)
     {

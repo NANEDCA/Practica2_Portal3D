@@ -5,11 +5,12 @@ public class CompanionCube : MonoBehaviour
 {
     public float m_maxValidAngle = 40f;
     public float m_teleportportalOffset = 1.0f;
-
     Rigidbody rb;
 
     private void Awake()
-    {
+    {  
+  
+
         rb = GetComponent<Rigidbody>();
     }
 
@@ -42,6 +43,10 @@ public class CompanionCube : MonoBehaviour
 
     public void Teleport(Portal portal)
     {
+        
+         float l_ScaleRatio = portal.m_MirrorPortal.m_SizeMultiplier / portal.m_SizeMultiplier;
+        transform.localScale *= l_ScaleRatio;
+      
         Vector3 l_Direction = rb.linearVelocity.normalized;
 
         Vector3 l_WorldPosition =
@@ -58,11 +63,7 @@ public class CompanionCube : MonoBehaviour
 
         Vector3 l_LocalLinearVelocity =
             portal.m_OtherPortalTransform.InverseTransformDirection(l_WorldLinearVelocity);
-
-        // Calculamos cuánto debe cambiar el tamaño del cubo.
-        float l_ScaleRatio =
-            portal.m_MirrorPortal.m_SizeMultiplier / portal.m_SizeMultiplier;
-
+      
         rb.isKinematic = true;
 
         transform.position =
@@ -70,10 +71,6 @@ public class CompanionCube : MonoBehaviour
 
         transform.forward =
             portal.m_MirrorPortal.transform.TransformDirection(l_LocalForward);
-        transform.position += transform.forward * 1.5f;
-
-        transform.localScale *= l_ScaleRatio;
-
         rb.isKinematic = false;
 
         rb.linearVelocity =

@@ -117,6 +117,9 @@ public class RefractionCube : MonoBehaviour
 
     private void Teleport(Portal portal)
     {
+        float l_ScaleRatio =
+          portal.m_MirrorPortal.m_SizeMultiplier / portal.m_SizeMultiplier;
+        transform.localScale *= l_ScaleRatio;
         Vector3 l_Direction = rb.linearVelocity.normalized;
 
         Vector3 l_WorldPosition =
@@ -134,8 +137,6 @@ public class RefractionCube : MonoBehaviour
         Vector3 l_LocalVelocity =
             portal.m_OtherPortalTransform.InverseTransformDirection(l_WorldVelocity);
 
-        float l_ScaleRatio =
-            portal.m_MirrorPortal.m_SizeMultiplier / portal.m_SizeMultiplier;
 
         rb.isKinematic = true;
 
@@ -144,8 +145,8 @@ public class RefractionCube : MonoBehaviour
 
         transform.forward =
             portal.m_MirrorPortal.transform.TransformDirection(l_LocalForward);
-
-        transform.localScale *= l_ScaleRatio;
+        
+        
 
         rb.isKinematic = false;
 

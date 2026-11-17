@@ -184,6 +184,42 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 7d4705647fd7b714f91625407e1a1089, type: 2}
+    - target: {fileID: 8595584143228941030, guid: 1eece9497329f274f84734ae7617e412, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.b
+      value: 0.031372547
+      objectReference: {fileID: 0}
+    - target: {fileID: 8595584143228941030, guid: 1eece9497329f274f84734ae7617e412, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.g
+      value: 0.5877736
+      objectReference: {fileID: 0}
+    - target: {fileID: 8595584143228941030, guid: 1eece9497329f274f84734ae7617e412, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8595584143228941030, guid: 1eece9497329f274f84734ae7617e412, type: 3}
+      propertyPath: InitialModule.startColor.minColor.b
+      value: 0.047058824
+      objectReference: {fileID: 0}
+    - target: {fileID: 8595584143228941030, guid: 1eece9497329f274f84734ae7617e412, type: 3}
+      propertyPath: InitialModule.startColor.minColor.g
+      value: 0.2572103
+      objectReference: {fileID: 0}
+    - target: {fileID: 8595584143228941030, guid: 1eece9497329f274f84734ae7617e412, type: 3}
+      propertyPath: InitialModule.startColor.minColor.r
+      value: 0.78431374
+      objectReference: {fileID: 0}
+    - target: {fileID: 8595584143228941030, guid: 1eece9497329f274f84734ae7617e412, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key1.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8595584143228941030, guid: 1eece9497329f274f84734ae7617e412, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key1.g
+      value: 0.2943648
+      objectReference: {fileID: 0}
+    - target: {fileID: 8595584143228941030, guid: 1eece9497329f274f84734ae7617e412, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key1.r
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3139064332265146715, guid: 1eece9497329f274f84734ae7617e412, type: 3}
     m_RemovedGameObjects: []

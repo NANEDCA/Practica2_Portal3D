@@ -113,6 +113,9 @@ public class Turret : MonoBehaviour
     }
     private void Teleport(Portal portal)
     {
+        float l_ScaleRatio =
+           portal.m_MirrorPortal.m_SizeMultiplier / portal.m_SizeMultiplier;
+        transform.localScale *= l_ScaleRatio;
         Vector3 l_Direction = m_Rigidbody.linearVelocity.normalized;
 
         Vector3 l_WorldPosition =
@@ -130,9 +133,6 @@ public class Turret : MonoBehaviour
         Vector3 l_LocalVelocity =
             portal.m_OtherPortalTransform.InverseTransformDirection(l_WorldVelocity);
 
-        float l_ScaleRatio =
-            portal.m_MirrorPortal.m_SizeMultiplier / portal.m_SizeMultiplier;
-
         m_Rigidbody.isKinematic = true;
 
         transform.position =
@@ -140,8 +140,6 @@ public class Turret : MonoBehaviour
 
         transform.forward =
             portal.m_MirrorPortal.transform.TransformDirection(l_LocalForward);
-
-        transform.localScale *= l_ScaleRatio;
 
         m_Rigidbody.isKinematic = false;
 
