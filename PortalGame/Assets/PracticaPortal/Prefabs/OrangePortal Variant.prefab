@@ -44,6 +44,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.y
       value: 180
       objectReference: {fileID: 0}
+    - target: {fileID: 436205513109355071, guid: 1eece9497329f274f84734ae7617e412, type: 3}
+      propertyPath: m_Size.z
+      value: 0.19
+      objectReference: {fileID: 0}
     - target: {fileID: 695864411091479220, guid: 1eece9497329f274f84734ae7617e412, type: 3}
       propertyPath: m_TargetTexture
       value: 

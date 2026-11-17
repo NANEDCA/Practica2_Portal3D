@@ -22,9 +22,12 @@ public class RefractionCube : MonoBehaviour
 
     private void Update()
     {
-      
+
         if (m_DisableLaserOnNextFrame)
-            m_Laser.gameObject.SetActive(false); 
+        {
+            m_Laser.gameObject.SetActive(false);
+            return;
+        }
 
        
         Vector3 lposition = Vector3.forward * maxDistance;
@@ -36,7 +39,7 @@ public class RefractionCube : MonoBehaviour
             if (lrayhit.collider.CompareTag("Player") && !playerkilled)
             {
                 LaserKill();
-                playerkilled = false;
+                playerkilled = true;
             }
         }
         m_Laser.SetPosition(1, lposition);

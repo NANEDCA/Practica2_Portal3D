@@ -70,6 +70,7 @@ public class CompanionCube : MonoBehaviour
 
         transform.forward =
             portal.m_MirrorPortal.transform.TransformDirection(l_LocalForward);
+        transform.position += transform.forward * 1.5f;
 
         transform.localScale *= l_ScaleRatio;
 

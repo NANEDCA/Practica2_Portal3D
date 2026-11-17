@@ -9,14 +9,14 @@ public class PortalButton : MonoBehaviour
     {
         if (other.CompareTag("Cube"))
         {
-            Debug.Log("Cube Detectat!");
+          
             m_event.Invoke();
         }
     } 
 
     public void OpenDoor()
     {
-        Debug.Log("OBRINT PORTA!");
+       
         DoorAnimationM.Play();      
     }       
    

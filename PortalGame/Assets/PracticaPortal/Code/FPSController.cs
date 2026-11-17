@@ -234,7 +234,9 @@ public class FPSController : MonoBehaviour
         Vector3 ldirection = m_direction * l_Speed * Time.deltaTime;
         ldirection.y = m_VerticalSpeed * Time.deltaTime;
 
-        CollisionFlags l_CollisionFlags = m_CharacterController.Move(ldirection);
+        if (m_CharacterController!=null &&m_CharacterController.enabled) {
+            CollisionFlags l_CollisionFlags = m_CharacterController.Move(ldirection); 
+        }
 
         UpdatePortalSize();
 
@@ -242,25 +244,26 @@ public class FPSController : MonoBehaviour
         {
             if (Input.GetMouseButton(mouse_ShootButton0))
             {
-                m_PreviewOrange.gameObject.SetActive(true);
-                PreviewPortal(m_PreviewOrange);
+                m_PreviewBlue.gameObject.SetActive(true);
+                PreviewPortal(m_PreviewBlue);
             }
 
             if (Input.GetMouseButtonUp(mouse_ShootButton0))
             {
-                Shoot(m_Orange);
-                m_PreviewOrange.gameObject.SetActive(false);
+                Shoot(m_Blue);
+                m_PreviewBlue.gameObject.SetActive(false);
             }
 
             if (Input.GetMouseButton(mouse_ShootButton1))
             {
-                PreviewPortal(m_PreviewBlue);
+                m_PreviewOrange.gameObject.SetActive(true);
+                PreviewPortal(m_PreviewOrange);
             }
 
             if (Input.GetMouseButtonUp(mouse_ShootButton1))
             {
-                Shoot(m_Blue);
-                m_PreviewBlue.gameObject.SetActive(false);
+                Shoot(m_Orange);
+                m_PreviewOrange.gameObject.SetActive(false);
             }
         }
 
@@ -289,18 +292,6 @@ public class FPSController : MonoBehaviour
         if (Input.GetMouseButton(mouse_ShootButton0))
         {
             GrabObject();
-            m_OrangeSizeMultiplier += l_Scroll * m_PortalSizeStep * 10.0f;
-
-            m_OrangeSizeMultiplier = Mathf.Clamp(m_OrangeSizeMultiplier, m_MinPortalSize, m_MaxPortalSize);
-
-            UpdatePortalScale(m_Orange, m_OrangeBaseScale, m_OrangeSizeMultiplier);
-
-            UpdatePortalScale(m_PreviewOrange, m_PreviewOrangeBaseScale, m_OrangeSizeMultiplier);
-        } 
-        
-          
-        if (Input.GetMouseButton(mouse_ShootButton1))
-        {
             m_BlueSizeMultiplier += l_Scroll * m_PortalSizeStep * 10.0f;
 
             m_BlueSizeMultiplier = Mathf.Clamp(
@@ -309,13 +300,26 @@ public class FPSController : MonoBehaviour
                 m_MaxPortalSize
             );
 
-            UpdatePortalScale( m_Blue, m_BlueBaseScale, m_BlueSizeMultiplier);
+            UpdatePortalScale(m_Blue, m_BlueBaseScale, m_BlueSizeMultiplier);
 
             UpdatePortalScale(
                 m_PreviewBlue,
                 m_PreviewBlueBaseScale,
                 m_BlueSizeMultiplier
             );
+        }
+
+
+        if (Input.GetMouseButton(mouse_ShootButton1))
+        {
+           
+            m_OrangeSizeMultiplier += l_Scroll * m_PortalSizeStep * 10.0f;
+
+            m_OrangeSizeMultiplier = Mathf.Clamp(m_OrangeSizeMultiplier, m_MinPortalSize, m_MaxPortalSize);
+
+            UpdatePortalScale(m_Orange, m_OrangeBaseScale, m_OrangeSizeMultiplier);
+
+            UpdatePortalScale(m_PreviewOrange, m_PreviewOrangeBaseScale, m_OrangeSizeMultiplier);
         }
     }
 
@@ -455,20 +459,20 @@ public class FPSController : MonoBehaviour
 
         if (Physics.Raycast(l_Ray, out RaycastHit l_RayCastHit, m_MaxShootDistance, PortalLayerMask))
         {
-            Debug.Log("Raycast ha detectat: " + l_RayCastHit.collider.name);
+           
 
-            previewportal.transform.position = l_RayCastHit.point + l_RayCastHit.normal * 0.01f;
+            previewportal.transform.position = l_RayCastHit.point + l_RayCastHit.normal * 0.1f;
             previewportal.transform.rotation = Quaternion.LookRotation(l_RayCastHit.normal);
 
             previewportal.gameObject.SetActive(true);
 
             if (l_RayCastHit.collider.gameObject.layer == 6)
             {
-                previewportal.gameObject.SetActive(true);
-                ChangePreviewCOlor(previewportal, NoIsValidColor);
+                
+                ChangePreviewCOlor(previewportal,NoIsValidColor);
             }
             else{
-                ChangePreviewCOlor(previewportal, IsValidColor);
+                ChangePreviewCOlor(previewportal,IsValidColor);
             }
 
 
@@ -553,6 +557,7 @@ public class FPSController : MonoBehaviour
 
         Vector3 localPosition = portal.m_OtherPortalTransform.InverseTransformPoint(Worldlposition);
         Vector3 localForward = portal.m_OtherPortalTransform.InverseTransformDirection(lWorldForward);
+
 
         m_CharacterController.enabled = false;
 
